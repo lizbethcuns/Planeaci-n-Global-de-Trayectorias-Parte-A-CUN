@@ -80,7 +80,7 @@ def map_to_world(x_map, y_map, resolution, origin, image_height):
     )
 
 
-# ================= REMUESTREO 0.5 m =================
+# ================= REMUESTREO 1.0 m =================
 def resample_path_05m(path_map, resolution, origin, image_height):
     if len(path_map) < 2:
         return path_map
@@ -154,6 +154,4 @@ if __name__ == "__main__":
     )
 
     save_path_world_csv(path_05m, "lpastar_05m.csv")
-
-    print(f"Ruta LPA* guardada con waypoints cada 0.5 m → lpastar_05m.csv")
-    #print(f"Ruta LPA* guardada con waypoints cada 1.0 m → lpastar_1m.csv")
+    print(f"Ruta LPA* guardada con waypoints cada 1.0 m → lpastar_1m.csv")
