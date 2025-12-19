@@ -135,3 +135,60 @@ save_path_world_csv(path_05m, "lpastar_05m.csv")
 ```
 Se obtuvo una trayectoria óptima calculada mediante LPA*, procesada para respetar la geometría del mapa y finalmente remuestreada a intervalos constantes de 0.5 m, lista para ser utilizada en sistemas de navegación y control.
 
+#### Ahora para RRT 
+
+#### 1. Carga y binarización del mapa
+¿Qué se hizo?
+
+Se carga el mapa desde un archivo YAML, se lee la imagen asociada y se convierte en un mapa binario donde los obstáculos y el espacio libre quedan claramente definidos.
+```html
+def load_map(yaml_path, downsample_factor=1):
+with yaml_path.open('r') as f:
+    map_config = yaml.safe_load(f)
+map_img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+map_bin = np.zeros_like(map_img, dtype=np.uint8)
+map_bin[map_img < int(0.45 * 255)] = 1
+
+```
+#### 2. Reducción de resolución (Downsampling)
+¿Qué se hizo?
+
+Se reduce la resolución del mapa para disminuir el costo computacional del algoritmo RRT.
+```html
+map_bin = cv2.resize(
+    map_bin,
+    (w // downsample_factor, h // downsample_factor),
+    interpolation=cv2.INTER_AREA
+)
+resolution *= downsample_factor
+```
+#### 3. Conversión del mapa a entorno RRT
+Se transforma el mapa binario en un entorno compatible con el planificador RRT, definiendo los obstáculos como celdas ocupadas.
+```html
+def map_from_binary(map_bin):
+env = Map(w, h)
+env.update(obs_rect=obs_rect)
+```
+#### 4. Conversión de coordenadas mundo ↔ mapa
+Se convierten las coordenadas del mundo real a coordenadas del mapa y viceversa para poder planificar correctamente.
+```html
+def world_to_map(x_world, y_world, resolution, origin):
+def map_to_world(x_map, y_map, resolution, origin):
+```
+#### 5. Ejecución del algoritmo RRT
+¿Qué se hizo?
+Se configura y ejecuta el algoritmo RRT para encontrar una ruta entre el punto inicial y el objetivo.
+```html
+planner = SearchFactory()(
+    "rrt",
+    start=start,
+    goal=goal,
+    env=env,
+    max_dist=10,
+    sample_num=100000
+)
+```
+#### 6. Exportación de la ruta a CSV
+```html
+save_path_as_csv(path_05, "rrt_05m.csv", resolution, origin)
+```
