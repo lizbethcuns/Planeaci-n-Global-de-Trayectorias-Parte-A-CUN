@@ -6,6 +6,7 @@ import numpy as np
 import sys
 import math
 import heapq
+import time  # Import necesario para el tiempo
 import matplotlib.pyplot as plt 
 from pathlib import Path
 from collections import defaultdict
@@ -89,11 +90,8 @@ class LPAStar:
                 
                 # Actualizar cada 200 iteraciones
                 if iter_count % 200 == 0: 
-                    # ========================================================
-                    # CAMBIO AQUÍ: Aumentamos markersize a 4.5 para máxima solidez
-                    # ========================================================
+                    # GRIS SÓLIDO (Markersize 4.5 para rellenar huecos)
                     self.ax.plot(self.visited_x, self.visited_y, 's', color='#A9A9A9', markersize=4.5, markeredgewidth=0)
-                    
                     self.ax.set_title(f"LPA* Explorando... Nodos: {iter_count}")
                     plt.pause(0.001) 
                     self.visited_x = []
@@ -276,13 +274,10 @@ if __name__ == "__main__":
     if obstacles:
         obs_x = [o[0] for o in obstacles]
         obs_y = [o[1] for o in obstacles]
-        # Usamos 's' (cuadrado) y tamaño 3 para los obstáculos también
         ax.plot(obs_x, obs_y, 'ks', markersize=3, label='Obstáculos') 
     
     # 2. INICIO Y META
     ax.plot(start[0], start[1], 'go', markersize=8, label='Inicio')
-    
-    # META: PUNTO AZUL ('bo')
     ax.plot(goal[0], goal[1], 'bo', markersize=8, label='Meta') 
 
     ax.legend(loc='upper right')
@@ -295,9 +290,15 @@ if __name__ == "__main__":
     # EJECUCIÓN DEL ALGORITMO CON ANIMACIÓN
     # =======================================================
     planner = LPAStar(start, goal, w, h, obstacles, visualize=True, ax=ax)
-    planner.compute_shortest_path()
     
+    # ⏱️ INICIO DEL TIEMPO
+    start_time = time.time()
+    
+    planner.compute_shortest_path()
     path_map = planner.get_path()
+    
+    # ⏱️ FIN DEL TIEMPO
+    end_time = time.time()
 
     if not path_map:
         print("No se encontró camino.")
@@ -313,7 +314,7 @@ if __name__ == "__main__":
         plt.ioff()
         print("Ruta encontrada.")
 
-        # Guardar CSV
+        # Guardar CSV y Resamplear
         path_05m = resample_path_05m(
             path_map,
             resolution,
@@ -322,5 +323,17 @@ if __name__ == "__main__":
         )
         save_path_world_csv(path_05m, "lpastar_05m.csv")
         print(f"Ruta LPA* guardada → lpastar_05m.csv")
+        
+        # =======================================================
+        # REPORTE FINAL (SIN DISTANCIA)
+        # =======================================================
+        REQUIRED_SPACING = 0.5 
+        final_waypoints = path_05m
+
+        print("-" * 30)
+        # Solo mostramos Waypoints y Tiempo
+        print(f"Distancia_Waypoints: {len(final_waypoints)} (~{REQUIRED_SPACING}m)")
+        print(f"Tiempo: {end_time - start_time:.4f} s")
+        print("-" * 30)
     
     plt.show()
