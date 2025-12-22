@@ -250,7 +250,7 @@ if __name__ == "__main__":
     HERE = Path(__file__).resolve().parent
     yaml_path = HERE.parent / "Mapas-F1Tenth" / "Oschersleben_map.yaml"
 
-    downsample_factor = 8
+    downsample_factor = 4
 
     x_start, y_start = -21.0, -4.0
     x_goal,  y_goal  = -19.0, -4.7
@@ -271,10 +271,11 @@ if __name__ == "__main__":
     fig, ax = plt.subplots(figsize=(10, 8))
     
     # 1. OBSTÁCULOS (NEGRO SÓLIDO)
+    # Aumentamos markersize a 5 para unir los puntos
     if obstacles:
         obs_x = [o[0] for o in obstacles]
         obs_y = [o[1] for o in obstacles]
-        ax.plot(obs_x, obs_y, 'ks', markersize=3, label='Obstáculos') 
+        ax.plot(obs_x, obs_y, 'ks', markersize=5, label='Obstáculos') 
     
     # 2. INICIO Y META
     ax.plot(start[0], start[1], 'go', markersize=8, label='Inicio')
